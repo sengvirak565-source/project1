@@ -1,0 +1,142 @@
+[4/28/2026 9:32 AM] សេង វីរៈ៚: import React, { Component } from "react";
+import "./App.css";
+
+class TodoApp extends Component {
+  constructor() {
+    super();
+    this.state = {
+      tasks: JSON.parse(localStorage.getItem("tasks")) || [],
+      input: "",
+      editIndex: null
+    };
+  }
+
+  componentDidUpdate() {
+    localStorage.setItem("tasks", JSON.stringify(this.state.tasks));
+  }
+
+  handleChange = (e) => {
+    this.setState({ input: e.target.value });
+  };
+
+  addTask = () => {
+    if (this.state.input === "") return;
+
+    if (this.state.editIndex !== null) {
+      const updatedTasks = [...this.state.tasks];
+      updatedTasks[this.state.editIndex].text = this.state.input;
+      this.setState({ tasks: updatedTasks, input: "", editIndex: null });
+    } else {
+      const newTask = {
+        text: this.state.input,
+        completed: false
+      };
+      this.setState({
+        tasks: [...this.state.tasks, newTask],
+        input: ""
+      });
+    }
+  };
+
+  deleteTask = (index) => {
+    const tasks = this.state.tasks.filter((_, i) => i !== index);
+    this.setState({ tasks });
+  };
+
+  toggleComplete = (index) => {
+    const tasks = [...this.state.tasks];
+    tasks[index].completed = !tasks[index].completed;
+    this.setState({ tasks });
+  };
+
+  editTask = (index) => {
+    this.setState({
+      input: this.state.tasks[index].text,
+      editIndex: index
+    });
+  };
+
+  render() {
+    return (
+      <div className="container">
+        <h1>📝 To-Do List</h1>
+
+        <div className="input-box">
+          <input
+            type="text"
+            value={this.state.input}
+            onChange={this.handleChange}
+            placeholder="បញ្ចូលកិច្ចការ..."
+          />
+          <button onClick={this.addTask}>
+            {this.state.editIndex !== null ? "Update" : "Add"}
+          </button>
+        </div>
+
+        <ul>
+          {this.state.tasks.map((task, index) => (
+            <li key={index} className={task.completed ? "done" : ""}>
+              <span onClick={() => this.toggleComplete(index)}>
+                {task.text}
+              </span>
+
+              <div>
+                <button onClick={() => this.editTask(index)}>Edit</button>
+                <button onClick={() => this.deleteTask(index)}>Delete</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+}
+
+export default TodoApp;
+[4/28/2026 9:38 AM] សេង វីរៈ៚: body {
+  font-family: Arial;
+  background: #f4f4f4;
+}
+
+.container {
+  width: 400px;
+  margin: 50px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.input-box {
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+}
+
+button {
+  padding: 10px;
+  cursor: pointer;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  background: #eee;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.done span {
+  text-decoration: line-through;
+  color: gray;
+}
